@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modul7-P3</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Exam Generator</h1>
+    <hr>
+
+    <form>
+        <label>Question</label>
+        <input type="text" id="inputQuestion" placeholder="Input Question"> <br>
+        <label>Options</label>
+        <input type="text" id="inputOption" placeholder="Input Options"> <br>
+        <label>Time</label>
+        <input type="text" id="inputTime" placeholder="Input Time Limit"> <span>&nbsp;Minutes</span> <br>
+        <button onclick="generateQuestion()">Generate</button>
+    </form>
+    <hr>
+
+    <table id="tableExam">
+        <tr>
+            <th>No</th>
+            <th colspan="4">Question</th>
+            <th>Time</th>
+        </tr>
+        <tbody>
+            <!-- Data pertanyaan akan ditambahkan di sini -->
+        </tbody>
+    </table>
+
+    <script>
+        let tableExam = document.getElementById("tableExam");
+        let questionNumber = 1; // Nomor urut pertanyaan
+
+        function stringToArray(inputString) {
+            inputString = inputString.trim();
+            let array = [];
+            let word = "";
+
+            for (let i = 0; i < inputString.length; i++) {
+                const char = inputString[i];
+                if (char !== " " && char !== ",") {
+                    word += char;
+                } else if (char === "," && word !== "") {
+                    array.push(word);
+                    word = "";
+                }
+            }
+
+            if (word !== "") {
+                array.push(word);
+            }
+
+            return array;
+        }
+
+        function generateQuestion() {
+            event.preventDefault();
+
+            let tbody = document.createElement("tbody");
+            let tr = document.createElement("tr");
+
+            let nomorUrut = document.createTextNode(questionNumber++);
+            let questionText = document.createTextNode(document.getElementById("inputQuestion").value);
+            let optionArray = stringToArray(document.getElementById("inputOption").value);
+            let timeLimitText = document.createTextNode(document.getElementById("inputTime").value);
+
+            let tableArrayTop = [
+                nomorUrut,
+                questionText,
+                timeLimitText
+            ];
+
+            for (let i = 0; i < tableArrayTop.length; i++) {
+                let td = document.createElement("td");
+
+                td.appendChild(tableArrayTop[i]);
+                if (i == 0 || i == 2) {
+                    td.setAttribute("rowspan", "2");
+                }
+                if (i == 1) {
+                    td.setAttribute("colspan", "4");
+                }
+
+                tr.appendChild(td);
+            }
+            tbody.appendChild(tr);
+
+            let tr2 = document.createElement("tr");
+
+            for (let i = 0; i < optionArray.length; i++) {
+                let td2 = document.createElement("td");
+                let radio = document.createElement("input");
+                radio.setAttribute("type", "radio");
+                radio.setAttribute("name", "nah");
+                let optionText = document.createTextNode(String(optionArray[i]));
+                td2.appendChild(radio);
+                td2.appendChild(optionText);
+                tr2.appendChild(td2);
+            }
+            tbody.appendChild(tr2);
+
+            // let tr3 = document.createElement("tr");
+            // let td3 = document.createElement("td");
+            // td3.setAttribute("colspan", "6");
+            // td3.appendChild(timeLimitText);
+            // tr3.appendChild(td3);
+            // tbody.appendChild(tr3);
+
+            tableExam.appendChild(tbody);
+
+            // Menghitung mundur waktu
+            let timeLimitInSeconds = parseInt(timeLimitText.nodeValue) * 60; // Ubah menit ke detik
+            let timer = setInterval(function () {
+                let minutes = Math.floor(timeLimitInSeconds / 60);
+                let seconds = timeLimitInSeconds % 60;
+                timeLimitText.nodeValue = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+                if (timeLimitInSeconds <= 0) {
+                    clearInterval(timer);
+                    // Tambahkan logika atau tindakan ketika waktu habis di sini
+                    alert(`Waktu habis untuk pertanyaan nomor ${nomorUrut.nodeValue}`);
+                } else {
+                    timeLimitInSeconds--;
+                }
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
